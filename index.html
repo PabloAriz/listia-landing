@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ListIA — Encuentra tus expedientes publicados en el Diario Oficial</title>
+<meta name="description" content="ListIA revisa el Diario Oficial de Yucatán automáticamente y te avisa cuando publican un expediente o cliente tuyo. Ahorra horas cada semana.">
+<style>
+  :root{
+    --navy:#0F2A4A; --navy-700:#163358;
+    --gold:#C9A86B; --gold-dk:#A6884F;
+    --cream:#FAF7F2; --card:#F2EBDB;
+    --text:#1A1A1A; --muted:#5C5145;
+    --success:#5C7C4A; --danger:#8B2A24;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;
+       color:var(--text);background:var(--cream);line-height:1.55}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+
+  /* Topbar */
+  header{background:var(--navy);color:var(--cream);padding:16px 0}
+  header .wrap{display:flex;align-items:center;gap:14px}
+  .logo{width:42px;height:42px;background:var(--cream);color:var(--navy);
+        font-family:Cambria,Georgia,serif;font-style:italic;font-weight:bold;
+        font-size:24px;display:grid;place-items:center;border-radius:6px;
+        position:relative}
+  .logo::after{content:'';position:absolute;right:-3px;top:-3px;
+               width:12px;height:12px;background:var(--gold);border-radius:50%}
+  .brand{font-family:Cambria,Georgia,serif;font-size:22px;font-weight:bold}
+  .brand i{color:var(--gold);font-style:italic}
+  nav{margin-left:auto;display:flex;gap:18px;align-items:center}
+  nav a{color:var(--cream);text-decoration:none;font-size:14px;opacity:.85}
+  nav a:hover{opacity:1}
+  .btn-cta{background:var(--gold);color:var(--navy);padding:9px 20px;
+           border-radius:4px;font-weight:600;font-size:13px;border:none;
+           cursor:pointer;text-decoration:none;display:inline-block}
+  .btn-cta:hover{background:var(--gold-dk);color:var(--cream)}
+
+  /* Hero */
+  .hero{padding:80px 0 60px;text-align:left}
+  .pretitle{text-transform:uppercase;color:var(--gold-dk);letter-spacing:2px;
+            font-size:11px;font-weight:700;margin-bottom:14px}
+  h1{font-family:Cambria,Georgia,serif;font-size:54px;font-weight:700;
+     line-height:1.05;letter-spacing:-1px;max-width:780px}
+  h1 em{font-style:italic;color:var(--gold);font-weight:400}
+  .sub{font-size:18px;color:var(--muted);max-width:640px;margin:18px 0 30px}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+  .btn-primary{background:var(--navy);color:var(--cream);padding:14px 28px;
+               border-radius:4px;font-weight:600;font-size:15px;border:none;
+               cursor:pointer;text-decoration:none}
+  .btn-primary:hover{background:var(--navy-700)}
+  .btn-secondary{background:transparent;color:var(--navy);padding:13px 26px;
+                 border-radius:4px;font-weight:500;font-size:15px;
+                 border:1.5px solid var(--gold);cursor:pointer;
+                 text-decoration:none}
+  .btn-secondary:hover{background:var(--card)}
+
+  /* Sections */
+  section{padding:70px 0}
+  section.alt{background:var(--card)}
+  h2{font-family:Cambria,Georgia,serif;font-size:34px;font-weight:700;
+     letter-spacing:-0.5px;margin-bottom:16px;text-align:center}
+  h2 em{font-style:italic;color:var(--gold-dk)}
+  .lead{font-size:17px;color:var(--muted);text-align:center;max-width:700px;
+        margin:0 auto 40px}
+
+  /* Problem/solution comparison */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .compare > div{padding:30px;border-radius:6px}
+  .problem{background:#fff;border-left:4px solid var(--danger)}
+  .solution{background:var(--navy);color:var(--cream);
+            border-left:4px solid var(--gold)}
+  .compare h3{font-family:Cambria,serif;font-size:20px;margin-bottom:14px}
+  .compare ul{list-style:none}
+  .compare li{padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06)}
+  .solution li{border-color:rgba(255,255,255,0.1)}
+  .compare li:last-child{border:none}
+  .compare li::before{content:"";display:inline-block;width:8px;height:8px;
+                       border-radius:50%;margin-right:10px;vertical-align:middle}
+  .problem li::before{background:var(--danger)}
+  .solution li::before{background:var(--gold)}
+
+  /* Features */
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+            margin-top:40px}
+  .feat{background:#fff;padding:28px;border-radius:6px;
+        border-top:3px solid var(--gold)}
+  .feat .ico{font-size:32px;margin-bottom:10px}
+  .feat h3{font-family:Cambria,serif;font-size:18px;margin-bottom:8px}
+  .feat p{font-size:14px;color:var(--muted);line-height:1.5}
+
+  /* Pricing */
+  .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
+           max-width:900px;margin:40px auto 0}
+  .price-card{background:#fff;border-radius:6px;padding:32px 26px;
+              text-align:center;border:1px solid rgba(0,0,0,0.06)}
+  .price-card.featured{background:var(--navy);color:var(--cream);
+                       transform:scale(1.04);box-shadow:0 8px 32px rgba(15,42,74,.18)}
+  .price-card .tier{text-transform:uppercase;letter-spacing:1px;font-size:11px;
+                    font-weight:700;color:var(--gold-dk);margin-bottom:14px}
+  .price-card.featured .tier{color:var(--gold)}
+  .price{font-family:Cambria,serif;font-size:38px;font-weight:bold;
+         margin-bottom:4px}
+  .price small{font-size:14px;font-weight:normal;color:var(--muted)}
+  .price-card.featured .price small{color:var(--gold)}
+  .price-card .desc{font-size:13px;color:var(--muted);margin-bottom:20px}
+  .price-card.featured .desc{color:rgba(250,247,242,.7)}
+  .price-card ul{list-style:none;text-align:left;margin-bottom:24px;
+                 font-size:14px}
+  .price-card li{padding:6px 0}
+  .price-card li::before{content:"✓ ";color:var(--gold);font-weight:bold;
+                         margin-right:4px}
+
+  /* FAQ */
+  .faq{max-width:780px;margin:0 auto}
+  .faq details{background:#fff;border-radius:6px;margin-bottom:10px;
+                padding:18px 22px;cursor:pointer}
+  .faq summary{font-weight:600;font-size:15px;outline:none;list-style:none}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";float:right;color:var(--gold-dk);
+                       font-size:20px;font-weight:bold}
+  .faq details[open] summary::after{content:"−"}
+  .faq p{margin-top:12px;font-size:14px;color:var(--muted)}
+
+  /* Footer */
+  footer{background:var(--navy);color:var(--cream);padding:40px 0;
+         text-align:center;font-size:13px;opacity:.85}
+  footer a{color:var(--gold);text-decoration:none}
+
+  @media (max-width: 720px) {
+    h1{font-size:34px}
+    .compare,.features,.pricing{grid-template-columns:1fr}
+    .price-card.featured{transform:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo">Li</div>
+    <span class="brand">List<i>IA</i></span>
+    <nav>
+      <a href="#features">Funciones</a>
+      <a href="#pricing">Precios</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contacto" class="btn-cta">Contactar</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="pretitle">— Software jurídico para Mérida</div>
+    <h1>Encuentra tus expedientes publicados en el Diario Oficial en <em>10 segundos</em>.</h1>
+    <p class="sub">ListIA revisa cada día el Diario Oficial de Yucatán y te avisa cuando publican algo de tus clientes. Lo que un pasante hace en dos horas, lo hace en lo que tarda un café.</p>
+    <div class="hero-actions">
+      <a href="#contacto" class="btn-primary">Probar 7 días gratis</a>
+      <a href="#features" class="btn-secondary">Ver cómo funciona</a>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>Hoy revisas el Diario Oficial <em>a mano</em>. Mañana no.</h2>
+    <p class="lead">Compara cómo se hace hoy en la mayoría de los despachos vs. cómo lo haces con ListIA.</p>
+    <div class="compare">
+      <div class="problem">
+        <h3>Sin ListIA</h3>
+        <ul>
+          <li>Un pasante baja el PDF cada día</li>
+          <li>Lo lee página por página buscando nombres</li>
+          <li>Reporta a mano lo que encuentra</li>
+          <li>Toma 1–2 horas por día</li>
+          <li>Errores humanos: omisiones, confusiones</li>
+          <li>Sin historial consolidado</li>
+        </ul>
+      </div>
+      <div class="solution">
+        <h3>Con ListIA</h3>
+        <ul>
+          <li>Descarga el DO automáticamente</li>
+          <li>Busca nombres y expedientes en segundos</li>
+          <li>Crea eventos en Google Calendar de un clic</li>
+          <li>Toma 10 segundos por día</li>
+          <li>Cero errores: lo que está, lo encuentra</li>
+          <li>Histórico en Excel acumulativo</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Funciones <em>clave</em></h2>
+    <p class="lead">Todo pensado para abogados litigantes con muchos expedientes activos.</p>
+    <div class="features">
+      <div class="feat">
+        <div class="ico">🔍</div>
+        <h3>Búsqueda por nombre y expediente</h3>
+        <p>Distingue coincidencias completas (nombre + expediente) de parciales (solo nombre) para que sepas qué revisar primero.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">📅</div>
+        <h3>Google Calendar integrado</h3>
+        <p>Crea eventos automáticos en tu calendario con juzgado, expediente y fecha del DO. Nada se te pasa.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">⬇️</div>
+        <h3>Descarga automática del DO</h3>
+        <p>Cada día baja el Diario Oficial de Yucatán solo. Tú no tienes que entrar al sitio del gobierno nunca más.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">📊</div>
+        <h3>Histórico Excel offline</h3>
+        <p>Va guardando un archivo Excel acumulativo con todas las coincidencias. Tu archivo, tu propiedad, sin nube.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">🏷️</div>
+        <h3>Clasificación automática</h3>
+        <p>Detecta el tipo: SENTENCIA, EMBARGO, REMATE, EDICTO, EMPLAZAMIENTO. Priorizas en un vistazo.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">🔒</div>
+        <h3>100% privado</h3>
+        <p>Los nombres de tus clientes nunca salen de tu computadora. Sin servidores, sin nube, sin riesgo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="alt">
+  <div class="wrap">
+    <h2>Precios <em>claros</em></h2>
+    <p class="lead">Sin suscripciones engañosas. Pagas una vez por año, lo usas todo el año.</p>
+    <div class="pricing">
+      <div class="price-card">
+        <div class="tier">Individual</div>
+        <div class="price">$3,500<small> /año</small></div>
+        <div class="desc">1 computadora</div>
+        <ul>
+          <li>Todas las funciones</li>
+          <li>Soporte por WhatsApp</li>
+          <li>Actualizaciones incluidas</li>
+        </ul>
+        <a href="#contacto" class="btn-secondary" style="display:block">Contratar</a>
+      </div>
+      <div class="price-card featured">
+        <div class="tier">Despacho — popular</div>
+        <div class="price">$8,500<small> /año</small></div>
+        <div class="desc">3 computadoras</div>
+        <ul>
+          <li>Todas las funciones</li>
+          <li>Soporte prioritario</li>
+          <li>Actualizaciones incluidas</li>
+          <li>Capacitación 1h gratis</li>
+        </ul>
+        <a href="#contacto" class="btn-cta" style="display:block;padding:13px">Contratar</a>
+      </div>
+      <div class="price-card">
+        <div class="tier">Bufete</div>
+        <div class="price">$13,500<small> /año</small></div>
+        <div class="desc">5 computadoras</div>
+        <ul>
+          <li>Todas las funciones</li>
+          <li>Soporte prioritario</li>
+          <li>Actualizaciones incluidas</li>
+          <li>Capacitación 1h gratis</li>
+        </ul>
+        <a href="#contacto" class="btn-secondary" style="display:block">Contratar</a>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:24px;color:var(--muted);font-size:13px">
+      Renovación anual al 50%. Facturación CFDI 4.0. Pago por SPEI.
+    </p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>Preguntas <em>frecuentes</em></h2>
+    <div class="faq">
+      <details>
+        <summary>¿Funciona en Mac o solo en Windows?</summary>
+        <p>Por ahora solo Windows 10 y 11. Tenemos planeado Mac para 2027.</p>
+      </details>
+      <details>
+        <summary>¿Mis datos se suben a algún servidor?</summary>
+        <p>No. Los nombres de tus clientes y los resultados de las búsquedas se quedan únicamente en tu computadora. ListIA es una app de escritorio, no un servicio en la nube.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa si cambio de computadora?</summary>
+        <p>La licencia se reasigna gratis a tu nueva computadora. Solo necesitamos el nuevo Hardware ID.</p>
+      </details>
+      <details>
+        <summary>¿Tengo que estar todo el día con la app abierta?</summary>
+        <p>No. Puedes abrirla cuando quieras revisar, o configurarla para que corra automáticamente cada mañana en segundo plano.</p>
+      </details>
+      <details>
+        <summary>¿Funciona para otros estados?</summary>
+        <p>Por ahora solo Yucatán. Si tienes interés en CDMX, Quintana Roo, Campeche u otro estado, contáctanos para evaluar.</p>
+      </details>
+      <details>
+        <summary>¿Cómo es la prueba de 7 días?</summary>
+        <p>Te mandamos el .exe sin licencia. Lo instalas y funciona completo durante 7 días. Si te convence, nos mandas tu Hardware ID y te mandamos la licencia el mismo día. Si no, simplemente no compras.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="contacto" class="alt" style="text-align:center">
+  <div class="wrap">
+    <h2>Empieza a <em>ahorrar tiempo</em> esta semana</h2>
+    <p class="lead">Mándanos un mensaje y te enviamos la versión de prueba en menos de 24 horas hábiles.</p>
+    <a href="mailto:arizteguipablo@gmail.com?subject=Quiero%20probar%20ListIA"
+       class="btn-primary" style="font-size:17px;padding:18px 36px">
+      ✉ Solicitar prueba gratuita
+    </a>
+    <p style="margin-top:18px;color:var(--muted);font-size:14px">
+      O escríbenos a <a href="mailto:arizteguipablo@gmail.com" style="color:var(--navy)">arizteguipablo@gmail.com</a>
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 ListIA · Pablo Ariztegui Abimerhi · Mérida, Yucatán</p>
+    <p style="margin-top:6px;opacity:.7">
+      <a href="https://gist.github.com/PabloAriz/159af0e8298600c52b0e56c21b25684d">Política de Privacidad</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:arizteguipablo@gmail.com">Contacto</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
